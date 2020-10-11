@@ -67,4 +67,4 @@ def update_comment(icomment: UpdateComment):
 
     # create firestore comment object and update
     # TODO: add reference to user
-    comment_handler.add_comment(UpdateComment)
+    comment_handler.update_comment(UpdateComment)

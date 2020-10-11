@@ -24,7 +24,8 @@ class CommentHandler:
 
     def _load_comment(self, comment: DocumentSnapshot, comments_collection, level):
         comment_dict = comment.to_dict()
-        reply_collection = comments_collection.document(comment.id).collection("replies")
+        comment_dict["id"] = comment.id
+        reply_collection = comments_collection.document(comment.id).collection("comments")
         if len(reply_collection.get()) > 0:
             self._load_collection(reply_collection, comment_dict, level=level)
         print(comment_dict)
@@ -34,7 +35,8 @@ class CommentHandler:
         list_reply = []
         for reply in reply_collection.get():
             reply_dict = reply.to_dict()
-            sub_reply_collection = reply_collection.document(reply.id).collection("replies")
+            reply_dict["id"] = reply.id
+            sub_reply_collection = reply_collection.document(reply.id).collection("comments")
             if level < max_level and len(sub_reply_collection.get()) > 0:
                 self._load_collection(sub_reply_collection, reply_dict, level=level)
             list_reply.append(reply_dict)
@@ -71,7 +73,7 @@ class CommentHandler:
         ireply_dict["list_parent"] = []
         for parent_id in ireply.list_parent:
             ireply_dict["list_parent"].append(parent_id.hex)
-            collection = collection.document(parent_id.hex).collection("replies")
+            collection = collection.document(parent_id.hex).collection("comments")
         reply_id = uuid.uuid4().hex
         ireply_dict["commenter"] = dict(ireply_dict["commenter"])
         print(ireply_dict)
