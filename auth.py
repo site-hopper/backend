@@ -6,9 +6,6 @@ from firebase_admin import db
 from firebase_admin import auth
 
 
-
-
-
 def sign_in_with_email_and_password(email: str, password: str, return_secure_token: bool = True):
     payload = json.dumps({
         "email": email,
@@ -21,6 +18,7 @@ def sign_in_with_email_and_password(email: str, password: str, return_secure_tok
                       data=payload)
 
     return r.json()["idToken"]
+
 
 def get_uid_from_token(id_token: str):
     result = auth.verify_id_token(id_token)
