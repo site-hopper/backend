@@ -3,7 +3,7 @@ import uuid
 from firebase_admin import firestore
 from google.cloud.firestore_v1 import DocumentReference, DocumentSnapshot
 
-from models import NewComment, UpdateComment
+import model
 from .models import CommentFS
 from typing import Dict
 

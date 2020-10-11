@@ -38,3 +38,8 @@ class UpdateComment(BaseModel):
     domain: str
     route: str
 
+
+class SignInEmailPassword(BaseModel):
+    email: str
+    password: str
+

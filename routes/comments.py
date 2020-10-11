@@ -1,18 +1,17 @@
-"""from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, APIRouter
 import firebase_admin
-from fastapi.openapi.model import Response
+from fastapi.openapi.models import Response
 from firebase_admin import credentials
 from firebase_admin import auth
 
 from comments.handler import CommentHandler
-from comments.model import CommentFS
-from model import UpdateComment, NewComment, NewReply
-from users.model import User
+from comments.models import CommentFS
+from models import NewComment, NewReply, UpdateComment
+from users.models import User
 from dependencies import authentication
 
-app = FastAPI()
-cred = credentials.Certificate("site-hopper-adminsdk.json")
-firebase_admin.initialize_app(cred)
+router = APIRouter()
+
 
 
 # @app.middleware("http")
@@ -31,7 +30,7 @@ firebase_admin.initialize_app(cred)
 #
 #     return response
 
-@app.get("/")
+@router.get("/")
 async def root():
     # user = auth.get_user_by_email("akshayrgund@gmail.com")
     id_token = auth.sign_in_with_email_and_password("akshayrgund@gmail.com", "Password123", True)
@@ -39,7 +38,7 @@ async def root():
     return id_token
 
 
-@app.get("/api/v1/comment")
+@router.get("/api/v1/comment")
 def get_comments(domain: str, route: str):
     route = route.replace("/", "::")
     comment_handler = CommentHandler(domain, route)
@@ -47,7 +46,7 @@ def get_comments(domain: str, route: str):
     return list_comment
 
 
-@app.post("/api/v1/comment")
+@router.post("/api/v1/comment")
 def add_comment(icomment: NewComment, user: User = Depends(authentication.get_current_user_authorizer())):
     comment_handler = CommentHandler(icomment.domain, icomment.route)
     comment_handler.add_comment(icomment)
@@ -55,7 +54,7 @@ def add_comment(icomment: NewComment, user: User = Depends(authentication.get_cu
     return {"status":"Comment Added successfully"}
 
 
-@app.post("/api/v1/reply")
+@router.post("/api/v1/reply")
 def add_reply(icomment: NewReply, user: User = Depends(authentication.get_current_user_authorizer())):
     comment_handler = CommentHandler(icomment.domain, icomment.route)
     comment_handler.add_reply(icomment)
@@ -63,7 +62,7 @@ def add_reply(icomment: NewReply, user: User = Depends(authentication.get_curren
     return {"status": "Comment Added successfully"}
 
 
-@app.patch("/api/v1/comment")
+@router.patch("/api/v1/comment")
 def update_comment(icomment: UpdateComment, user: User = Depends(authentication.get_current_user_authorizer())):
     comment_handler = CommentHandler(icomment.domain, icomment.route)
 
@@ -75,46 +74,3 @@ def update_comment(icomment: UpdateComment, user: User = Depends(authentication.
 
 
 
-"""
-
-import firebase_admin
-from fastapi.openapi.models import Response
-from firebase_admin import credentials
-from firebase_admin import auth
-
-from fastapi import FastAPI
-from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException
-from starlette.middleware.cors import CORSMiddleware
-
-from errors.http_error import http_error_handler
-from errors.validation_error import http422_error_handler
-from routes.api import router as api_router
-
-# from app.core.config import ALLOWED_HOSTS, API_PREFIX, DEBUG, PROJECT_NAME, VERSION
-
-
-cred = credentials.Certificate("site-hopper-adminsdk.json")
-firebase_admin.initialize_app(cred)
-
-
-def get_application() -> FastAPI:
-    application = FastAPI(title="site hopper")
-
-    """application.add_middleware(
-        CORSMiddleware,
-        allow_origins=ALLOWED_HOSTS or ["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )"""
-
-    application.add_exception_handler(HTTPException, http_error_handler)
-    application.add_exception_handler(RequestValidationError, http422_error_handler)
-
-    application.include_router(api_router)
-
-    return application
-
-
-app = get_application()
