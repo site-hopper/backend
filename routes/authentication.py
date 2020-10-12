@@ -1,9 +1,11 @@
 import os
-
 from fastapi import APIRouter, Body, Depends, HTTPException
+from firebase_admin.exceptions import FirebaseError
 from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 import json
 import requests
+from firebase_admin import auth
+
 
 rest_api_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
 from model.schemas.users import (
@@ -41,3 +43,28 @@ async def login(user_login: UserInLogin = Body(..., embed=True, alias="user")):
     user = sign_in_with_email_and_password(email=user_login.email, password=user_login.password,
                                                  return_secure_token=True)
     return user.__dict__
+
+
+@router.post("/signup", name="auth:signup")
+async def signup(user_in_create: UserInCreate = Body(..., embed=True, alias="user")):
+    try:
+        auth.create_user(
+            email=user_in_create.email,
+            display_name=user_in_create.display_name,
+            password=user_in_create.password)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail=error.__str__()
+        )
+    except FirebaseError as error:
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail=error.__str__()
+        )
+
+    user = sign_in_with_email_and_password(email=user_in_create.email, password=user_in_create.password,
+                                           return_secure_token=True)
+    return user.__dict__
+
+

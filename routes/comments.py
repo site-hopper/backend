@@ -30,12 +30,7 @@ router = APIRouter()
 #
 #     return response
 
-@router.get("/")
-async def root():
-    # user = auth.get_user_by_email("akshayrgund@gmail.com")
-    id_token = auth.sign_in_with_email_and_password("akshayrgund@gmail.com", "Password123", True)
-    auth.verify_id_token(id_token)
-    return id_token
+
 
 
 @router.get("/api/v1/comment")

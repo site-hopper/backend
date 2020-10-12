@@ -8,8 +8,10 @@ class UserInLogin(BaseModel):
     password: str
 
 
-class UserInCreate(UserInLogin):
-    username: str
+class UserInCreate(BaseModel):
+    email: EmailStr
+    password: str
+    display_name: str
 
 
 class UserInUpdate(UserInCreate):
@@ -22,7 +24,7 @@ class UserWithToken:
     token: str
 
 
-class UserInResponse():
+class UserInResponse:
     def __init__(self, token):
         print(type(token))
         self.token = token
