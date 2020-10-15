@@ -4,6 +4,8 @@ certifi==2020.6.20
 cffi==1.14.3
 chardet==3.0.4
 click==7.1.2
+dnspython==2.0.0
+email-validator==1.1.1
 fastapi==0.61.1
 firebase-admin==4.4.0
 google-api-core==1.22.4
@@ -17,8 +19,10 @@ google-crc32c==1.0.0
 google-resumable-media==1.1.0
 googleapis-common-protos==1.52.0
 grpcio==1.32.0
+gunicorn==20.0.4
 h11==0.11.0
 httplib2==0.18.1
+httptools==0.1.1
 idna==2.10
 msgpack==1.0.0
 protobuf==3.13.0
@@ -26,6 +30,7 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.20
 pydantic==1.6.1
+python-dotenv==0.14.0
 pytz==2020.1
 requests==2.24.0
 rsa==4.6
@@ -36,8 +41,5 @@ uritemplate==3.0.1
 urllib3==1.25.10
 uuid==1.30
 uvicorn==0.12.1
-gunicorn==20.0.4
-httptools==0.1.1
 uvloop==0.14.0
 websockets==8.1
-python-dotenv==0.14.0
