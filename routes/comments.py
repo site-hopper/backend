@@ -1,12 +1,9 @@
-from fastapi import FastAPI, Request, Depends, APIRouter
-import firebase_admin
-from fastapi.openapi.models import Response
-from firebase_admin import credentials
+from fastapi import Depends, APIRouter
 from firebase_admin import auth
 
 from comments.handler import CommentHandler
-from comments.models import CommentFS
-from models import NewComment, NewReply, UpdateComment
+from model.schemas.comments import NewComment, NewReply, UpdateComment
+from users.handler import UserHandler
 from users.models import User
 from dependencies import authentication
 
@@ -48,16 +45,23 @@ def get_comments(domain: str, route: str):
 
 @router.post("/api/v1/comment")
 def add_comment(icomment: NewComment, user: User = Depends(authentication.get_current_user_authorizer())):
-    comment_handler = CommentHandler(icomment.domain, icomment.route)
-    comment_handler.add_comment(icomment)
+    user_handler = UserHandler()
+    fs_user = user_handler.get_fs_user(user.uid)
+    fs_user.id = user.uid
+
+    comment_handler = CommentHandler(icomment.domain, icomment.route )
+    comment_handler.add_comment(icomment, fs_user)
 
     return {"status":"Comment Added successfully"}
 
 
 @router.post("/api/v1/reply")
 def add_reply(icomment: NewReply, user: User = Depends(authentication.get_current_user_authorizer())):
+    user_handler = UserHandler()
+    fs_user = user_handler.get_fs_user(user.uid)
+    fs_user.id = user.uid
     comment_handler = CommentHandler(icomment.domain, icomment.route)
-    comment_handler.add_reply(icomment)
+    comment_handler.add_reply(icomment, fs_user)
 
     return {"status": "Comment Added successfully"}
 
@@ -65,9 +69,6 @@ def add_reply(icomment: NewReply, user: User = Depends(authentication.get_curren
 @router.patch("/api/v1/comment")
 def update_comment(icomment: UpdateComment, user: User = Depends(authentication.get_current_user_authorizer())):
     comment_handler = CommentHandler(icomment.domain, icomment.route)
-
-    # create firestore comment object and update
-    # TODO: add reference to user
     comment_handler.add_comment(UpdateComment)
 
 

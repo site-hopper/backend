@@ -42,10 +42,10 @@ class CommentHandler:
             list_reply.append(reply_dict)
         comment_dict["list_reply"] = list_reply
 
-    def add_comment(self, icomment):
+    def add_comment(self, icomment, fs_user):
         # TODO: add reference to user
         print(dict(icomment))
-        ocomment = CommentFS(body=icomment.body, rating=icomment.rating, commenter=dict(icomment.commenter))
+        ocomment = CommentFS(body=icomment.body, rating=icomment.rating, commenter=fs_user.to_dict())
         try:
             comment_id = uuid.uuid4().hex
             print(ocomment.to_dict())
@@ -67,7 +67,7 @@ class CommentHandler:
         except:
             raise Exception(f"Error updating comment")
 
-    def add_reply(self, ireply):
+    def add_reply(self, ireply, fs_user):
         collection = self._collection
         ireply_dict = dict(ireply)
         ireply_dict["list_parent"] = []
@@ -75,7 +75,7 @@ class CommentHandler:
             ireply_dict["list_parent"].append(parent_id.hex)
             collection = collection.document(parent_id.hex).collection("comments")
         reply_id = uuid.uuid4().hex
-        ireply_dict["commenter"] = dict(ireply_dict["commenter"])
+        ireply_dict["commenter"] = fs_user.to_dict()
         print(ireply_dict)
         collection.document(reply_id).set(ireply_dict)
 

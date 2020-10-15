@@ -19,7 +19,6 @@ class NewComment(BaseModel):
     rating: int = None
     domain: str
     route: str
-    commenter: Commenter
 
 
 class NewReply(BaseModel):
@@ -28,7 +27,6 @@ class NewReply(BaseModel):
     rating: int = None
     domain: str
     route: str
-    commenter: Commenter
 
 
 class UpdateComment(BaseModel):

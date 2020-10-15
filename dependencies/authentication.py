@@ -66,7 +66,7 @@ async def _get_current_user(
 ) -> User:
     try:
         username_id = get_uid_from_token(token)
-        return User(username_id["uid"])
+        return User(username_id)
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -85,4 +85,5 @@ async def _get_current_user_optional(
 
 def get_uid_from_token(id_token: str):
     result = auth.verify_id_token(id_token)
+    print(result)
     return result.get("uid", None)
