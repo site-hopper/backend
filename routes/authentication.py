@@ -4,8 +4,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 import json
 import requests
-from dotenv import load_dotenv
-load_dotenv(verbose=True)
+
 
 rest_api_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
 from model.schemas.users import (

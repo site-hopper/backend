@@ -1,3 +1,5 @@
+import os
+
 import firebase_admin
 from fastapi.openapi.models import Response
 from firebase_admin import credentials
@@ -11,11 +13,22 @@ from starlette.middleware.cors import CORSMiddleware
 from errors.http_error import http_error_handler
 from errors.validation_error import http422_error_handler
 from routes.api import router as api_router
-
+from dotenv import load_dotenv
+load_dotenv(verbose=True)
 # from app.core.config import ALLOWED_HOSTS, API_PREFIX, DEBUG, PROJECT_NAME, VERSION
 
+FIREBASE_CREDS = "site-hopper-adminsdk.json"
+FIREBASE_CREDS_ENV = os.getenv("FIREBASE_SDK_KEY",None)
+if os.path.isfile(FIREBASE_CREDS):
+    creds = FIREBASE_CREDS
+elif FIREBASE_CREDS_ENV:
+    import json
+    print(type(FIREBASE_CREDS_ENV))
+    creds = json.loads(FIREBASE_CREDS_ENV)
+else:
+    raise Exception(f"Firebase admin credentials not found")
 
-cred = credentials.Certificate("site-hopper-adminsdk.json")
+cred = credentials.Certificate(creds)
 firebase_admin.initialize_app(cred)
 
 
