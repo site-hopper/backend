@@ -40,3 +40,4 @@ gunicorn==20.0.4
 httptools==0.1.1
 uvloop==0.14.0
 websockets==8.1
+python-dotenv==0.14.0
