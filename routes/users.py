@@ -1,60 +1,26 @@
-from fastapi import APIRouter, Body, Depends, HTTPException
-from starlette.status import HTTP_400_BAD_REQUEST
-
-from dependencies.authentication import get_current_user_authorizer
-from app.api.dependencies.database import get_repository
-from app.core import config
-from app.db.repositories.users import UsersRepository
+from fastapi import APIRouter, Depends
 from users.models import User
-
-from resources import strings
-from app.services import jwt
-from app.services.authentication import check_email_is_taken, check_username_is_taken
+from users.handler import UserHandler
+from dependencies import authentication
 
 router = APIRouter()
 
 
-@router.get("", response_model=User, name="users:get-current-user")
-async def retrieve_current_user(
-    user: User = Depends(get_current_user_authorizer()),
-) -> User:
-    return user
-
-@router.get("/login_with_email_password", response_model=str, name="login_with_email_password")
-async def login_with_email_password(
-) -> str:
-
-    return user
+@router.get("/get_user_details", name="get_user_details")
+async def get_user_details(user_id: str):
+    user_handler = UserHandler()
+    user = user_handler.get_fs_user(user_id)
+    return user.__dict__
 
 
-@router.put("", response_model=User, name="users:update-current-user")
-async def update_current_user(
-    user_update: UserInUpdate = Body(..., embed=True, alias="user"),
-    current_user: User = Depends(get_current_user_authorizer())
-) -> User:
-    if user_update.username and user_update.username != current_user.username:
-        if await check_username_is_taken(users_repo, user_update.username):
-            raise HTTPException(
-                status_code=HTTP_400_BAD_REQUEST,
-                detail=strings.USERNAME_TAKEN,
-            )
+@router.get("/get_current_user_details", name="get_current_user_details")
+async def get_current_user_details(user: User = Depends(authentication.get_current_user_authorizer())):
+    user_handler = UserHandler()
+    user = user_handler.get_fs_user(user.uid)
+    return user.__dict__
 
-    if user_update.email and user_update.email != current_user.email:
-        if await check_email_is_taken(users_repo, user_update.email):
-            raise HTTPException(
-                status_code=HTTP_400_BAD_REQUEST,
-                detail=strings.EMAIL_TAKEN,
-            )
 
-    user = await users_repo.update_user(user=current_user, **user_update.dict())
-
-    token = jwt.create_access_token_for_user(user, str(config.SECRET_KEY))
-    return UserInResponse(
-        user=UserWithToken(
-            username=user.username,
-            email=user.email,
-            bio=user.bio,
-            image=user.image,
-            token=token,
-        ),
-    )
+@router.patch("/disable", name="disable_current_user")
+async def disable_current_user(user: User = Depends(authentication.get_current_user_authorizer())):
+    UserHandler.disable_user(user.uid)
+    return {"status": "user disabled successfully"}

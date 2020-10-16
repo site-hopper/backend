@@ -22,7 +22,7 @@ class UserWithToken:
     token: str
 
 
-class UserInResponse():
+class UserInResponse:
     def __init__(self, token):
         print(type(token))
         self.token = token
