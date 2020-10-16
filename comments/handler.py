@@ -1,12 +1,10 @@
 import uuid
 
 from firebase_admin import firestore
-from google.cloud.firestore_v1 import DocumentReference, DocumentSnapshot
-from model.schemas.votes import Vote, RemoveVote
+from google.cloud.firestore_v1 import DocumentSnapshot
+from comments.schema.votes import Vote, RemoveVote
 from users.models import User
-import model
 from .models import CommentFS
-from typing import Dict
 
 
 class CommentHandler:

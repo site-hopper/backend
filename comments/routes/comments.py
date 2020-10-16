@@ -2,8 +2,8 @@ from fastapi import Depends, APIRouter
 from firebase_admin import auth
 
 from comments.handler import CommentHandler
-from model.schemas.comments import NewComment, NewReply, UpdateComment
-from model.schemas.votes import Vote, RemoveVote
+from comments.schema.comments import NewComment, NewReply, UpdateComment
+from comments.schema.votes import Vote, RemoveVote
 from users.handler import UserHandler
 from users.models import User
 from dependencies import authentication

@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 
-from routes import comments, authentication, users
+from authentication.routes import authentication
+from comments.routes import comments
+from users.routes import users
 
 router = APIRouter()
 
