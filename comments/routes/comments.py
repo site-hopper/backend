@@ -2,7 +2,8 @@ from fastapi import Depends, APIRouter
 from firebase_admin import auth
 
 from comments.handler import CommentHandler
-from model.schemas.comments import NewComment, NewReply, UpdateComment
+from comments.schema.comments import NewComment, NewReply, UpdateComment
+from comments.schema.votes import Vote, RemoveVote
 from users.handler import UserHandler
 from users.models import User
 from dependencies import authentication
@@ -70,6 +71,23 @@ def add_reply(icomment: NewReply, user: User = Depends(authentication.get_curren
 def update_comment(icomment: UpdateComment, user: User = Depends(authentication.get_current_user_authorizer())):
     comment_handler = CommentHandler(icomment.domain, icomment.route)
     comment_handler.add_comment(UpdateComment)
+
+
+@router.post("/api/v1/vote")
+def add_reply(vote: Vote, user: User = Depends(authentication.get_current_user_authorizer())):
+    comment_handler = CommentHandler(vote.domain, vote.route)
+    comment_handler.add_vote(vote, user)
+
+    return {"status": "Vote Added successfully"}
+
+@router.delete("/api/v1/vote")
+def add_reply(remove_vote: RemoveVote, user: User = Depends(authentication.get_current_user_authorizer())):
+    comment_handler = CommentHandler(remove_vote.domain, remove_vote.route)
+    comment_handler.remove_vote(remove_vote, user)
+
+    return {"status": "Vote removed successfully"}
+
+
 
 
 

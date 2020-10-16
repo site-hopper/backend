@@ -1,11 +1,10 @@
 import uuid
 
 from firebase_admin import firestore
-from google.cloud.firestore_v1 import DocumentReference, DocumentSnapshot
-
-import model
+from google.cloud.firestore_v1 import DocumentSnapshot
+from comments.schema.votes import Vote, RemoveVote
+from users.models import User
 from .models import CommentFS
-from typing import Dict
 
 
 class CommentHandler:
@@ -78,6 +77,26 @@ class CommentHandler:
         ireply_dict["commenter"] = fs_user.to_dict()
         print(ireply_dict)
         collection.document(reply_id).set(ireply_dict)
+
+    def add_vote(self, vote: Vote, user: User):
+        collection = self._collection
+        comment_doc = None
+        for parent_id in vote.list_parent:
+            comment_doc = collection.document(parent_id.hex)
+            collection = comment_doc.collection("comments")
+        vote_map = {"up": vote.up}
+        comment_doc.update({
+            'votes.'+user.uid: vote_map
+        })
+
+    def remove_vote(self, remove_vote: RemoveVote, user: User):
+        collection = self._collection
+        comment_doc = None
+        for parent_id in remove_vote.list_parent:
+            comment_doc = collection.document(parent_id.hex)
+            collection = comment_doc.collection("comments")
+        deleteVote = {'votes.'+user.uid: firestore.firestore.DELETE_FIELD}
+        comment_doc.update(deleteVote)
 
     @staticmethod
     def get_comment_ref_path(domain, route, comment_uuid):
