@@ -1,6 +1,7 @@
 import os
 
 import firebase_admin
+import uvicorn
 from fastapi.openapi.models import Response
 from firebase_admin import credentials
 from firebase_admin import auth
@@ -52,3 +53,6 @@ def get_application() -> FastAPI:
 
 
 app = get_application()
+
+if __name__ == '__main__':
+    uvicorn.run(app, port=8000)
