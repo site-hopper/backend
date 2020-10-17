@@ -1,14 +1,15 @@
 import uuid
 
 from firebase_admin import firestore
-from google.cloud.firestore_v1 import DocumentSnapshot
+from google.cloud.firestore_v1 import DocumentSnapshot, ArrayUnion
 from comments.schema.votes import Vote, RemoveVote
 from users.models import User
 from .models import CommentFS
 import fireo
 
-from .orm_models.models import Comment
+from .orm_models.models import Comment, Commenter
 from users.orm_models.models import User as FSUser
+
 
 class CommentHandler:
     def __init__(self, domain, route):
@@ -41,13 +42,19 @@ class CommentHandler:
     def add_comment(self, icomment, user_id):
         # TODO: add reference to user
         user = FSUser.collection.get(f"{FSUser.collection_name}/{user_id}")
+
         ocomment = Comment.from_dict(dict(icomment))
-        ocomment.commenter = user
+        ocomment.commenter = Commenter(first_name=user.first_name,last_name=user.last_name,id=user.id)
 
         comment_id = str(uuid.uuid4())
         ocomment.id = comment_id
         ocomment.parent = self.base_key
         ocomment.save()
+
+        # Add comment id to user
+        user.list_comment = ArrayUnion([ocomment.key])
+        user.update()
+
         return comment_id
         # TODO: handle particular exceptions
 
@@ -73,7 +80,7 @@ class CommentHandler:
     def add_reply(self, ireply, user_id):
         user = FSUser.collection.get(f"{FSUser.collection_name}/{user_id}")
         ocomment = Comment.from_dict(dict(ireply))
-        ocomment.commenter = user
+        ocomment.commenter = Commenter(first_name=user.first_name,last_name=user.last_name,id=user.id)
         ocomment.list_parent = []
         key = self.base_key
         for parent_id in ireply.list_parent:
@@ -84,6 +91,11 @@ class CommentHandler:
         ocomment.id = reply_id
         ocomment.parent = key
         ocomment.save()
+
+        # Add reply key to user
+        user.list_comment = ArrayUnion([ocomment.key])
+        user.update()
+
         return reply_id
 
     def add_vote(self, vote: Vote, user: User):

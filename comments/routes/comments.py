@@ -26,7 +26,7 @@ def add_comment(icomment: NewComment, user: User = Depends(authentication.get_cu
     # fs_user.id = user.uid
 
     comment_handler = CommentHandler(icomment.domain, icomment.route )
-    comment_handler.add_comment(icomment, user.uid)
+    id = comment_handler.add_comment(icomment, user.uid)
 
     return {"status":"Comment Added successfully","id":id}
 
@@ -47,6 +47,7 @@ def delete_comment(icomment: DeleteComment):
     comment_handler = CommentHandler(icomment.domain, icomment.route)
     key =comment_handler.delete_comment(icomment.list_id)
     return {"status":"Delete successfully","id":key}
+
 
 @router.patch("/api/v1/comment")
 def update_comment(icomment: UpdateComment, user: User = Depends(authentication.get_current_user_authorizer())):
