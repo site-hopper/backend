@@ -22,7 +22,7 @@ class NewComment(BaseModel):
 
 
 class NewReply(BaseModel):
-    list_parent: List[uuid.UUID]
+    list_parent: List[str]
     body: str
     rating: int = None
     domain: str
@@ -33,6 +33,12 @@ class UpdateComment(BaseModel):
     body: Optional[str]
     id = str
     rating: Optional[int]
+    domain: str
+    route: str
+
+
+class DeleteComment(BaseModel):
+    list_id: List[str]
     domain: str
     route: str
 

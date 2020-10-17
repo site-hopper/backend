@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter
 from firebase_admin import auth
 
 from comments.handler import CommentHandler
-from comments.schema.comments import NewComment, NewReply, UpdateComment
+from comments.schema.comments import NewComment, NewReply, UpdateComment, DeleteComment
 from comments.schema.votes import Vote, RemoveVote
 from users.handler import UserHandler
 from users.models import User
@@ -21,26 +21,32 @@ def get_comments(domain: str, route: str):
 
 @router.post("/api/v1/comment")
 def add_comment(icomment: NewComment, user: User = Depends(authentication.get_current_user_authorizer())):
-    user_handler = UserHandler()
-    fs_user = user_handler.get_fs_user(user.uid)
-    fs_user.id = user.uid
+    # user_handler = UserHandler()
+    # fs_user = user_handler.get_fs_user(user.uid)
+    # fs_user.id = user.uid
 
     comment_handler = CommentHandler(icomment.domain, icomment.route )
-    comment_handler.add_comment(icomment, fs_user)
+    comment_handler.add_comment(icomment, user.uid)
 
-    return {"status":"Comment Added successfully"}
+    return {"status":"Comment Added successfully","id":id}
 
 
 @router.post("/api/v1/reply")
 def add_reply(icomment: NewReply, user: User = Depends(authentication.get_current_user_authorizer())):
     user_handler = UserHandler()
-    fs_user = user_handler.get_fs_user(user.uid)
-    fs_user.id = user.uid
+    # fs_user = user_handler.get_fs_user(user.uid)
+    # fs_user.id = user.uid
     comment_handler = CommentHandler(icomment.domain, icomment.route)
-    comment_handler.add_reply(icomment, fs_user)
+    id = comment_handler.add_reply(icomment, user.uid)
 
-    return {"status": "Comment Added successfully"}
+    return {"status": "Reply Added successfully","id":id}
 
+
+@router.delete("/api/v1/comment")
+def delete_comment(icomment: DeleteComment):
+    comment_handler = CommentHandler(icomment.domain, icomment.route)
+    key =comment_handler.delete_comment(icomment.list_id)
+    return {"status":"Delete successfully","id":key}
 
 @router.patch("/api/v1/comment")
 def update_comment(icomment: UpdateComment, user: User = Depends(authentication.get_current_user_authorizer())):
