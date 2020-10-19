@@ -1,10 +1,9 @@
 import uuid
 
 from firebase_admin import firestore
-from google.cloud.firestore_v1 import DocumentSnapshot
 from comments.schema.votes import Vote, RemoveVote
 from users.models import User
-from .models import CommentFS
+from users.handler import UserHandler
 import fireo
 
 from .orm_models.models import Comment
@@ -88,13 +87,15 @@ class CommentHandler:
 
     def add_vote(self, vote: Vote, user: User):
         collection = self._collection
+        user_handler = UserHandler()
+        fs_user = user_handler.get_fs_user(user.uid)
         comment_doc = None
         for parent_id in vote.list_parent:
             comment_doc = collection.document(parent_id.hex)
             collection = comment_doc.collection("comments")
-        vote_map = {"up": vote.up}
+        vote_map = {"up": vote.up, "first_name:": fs_user.first_name, "last_name": fs_user.last_name}
         comment_doc.update({
-            'votes.'+user.uid: vote_map
+            'votes.' + fs_user.id: vote_map
         })
 
     def remove_vote(self, remove_vote: RemoveVote, user: User):
@@ -103,7 +104,7 @@ class CommentHandler:
         for parent_id in remove_vote.list_parent:
             comment_doc = collection.document(parent_id.hex)
             collection = comment_doc.collection("comments")
-        deleteVote = {'votes.'+user.uid: firestore.firestore.DELETE_FIELD}
+        deleteVote = {'votes.' + user.id: firestore.firestore.DELETE_FIELD}
         comment_doc.update(deleteVote)
 
     @staticmethod
